@@ -7,3 +7,6 @@ npm run create-db
 
 -To create database connection pool add a .env file containing:
 PGDATABASE=airbnc
+
+-To run seed function use:
+npm run seed
