@@ -1,8 +1,16 @@
-const { createUserRef, createPropertyRef, formatProperties } = require("../db/utils");
+const {
+  createUserRef,
+  createPropertyRef,
+  formatProperties,
+  formatReviews,
+} = require("../db/utils");
 
 let singlePropertyArray = [];
 let multiplePropertyArray = [];
 let usernameRef = [];
+let propertyRef = [];
+let singleReviewArray = [];
+let multipleReviewArray = [];
 beforeEach(() => {
   singlePropertyArray = [
     {
@@ -42,7 +50,41 @@ beforeEach(() => {
   usernameRef = createUserRef([
     { user_id: 1, first_name: "Alice", surname: "Johnson" },
     { user_id: 2, first_name: "Bob", surname: "Smith" },
+    { user_id: 3, first_name: "Frank", surname: "White" },
   ]);
+
+  propertyRef = createPropertyRef([
+    { property_id: 1, name: "Modern Apartment in City Center" },
+    { property_id: 2, name: "Cosy Family House" },
+    { property_id: 3, name: "Chic Studio Near the Beach" },
+  ]);
+
+  singleReviewArray = [
+    {
+      guest_name: "Frank White",
+      property_name: "Chic Studio Near the Beach",
+      rating: 4,
+      comment: "Comment about Chic Studio Near the Beach",
+      created_at: "2024-03-28T10:15:00Z",
+    },
+  ];
+
+  multipleReviewArray = [
+    {
+      guest_name: "Frank White",
+      property_name: "Chic Studio Near the Beach",
+      rating: 4,
+      comment: "Comment about Chic Studio Near the Beach",
+      created_at: "2024-03-28T10:15:00Z",
+    },
+    {
+      guest_name: "Bob Smith",
+      property_name: "Modern Apartment in City Center",
+      rating: 2,
+      comment: "Comment about Modern Apartment in City Center",
+      created_at: "2024-04-12T14:45:00Z",
+    },
+  ];
 });
 
 describe("createUserRef function", () => {
@@ -74,11 +116,10 @@ describe("createUserRef function", () => {
 
 describe("formatProperties function", () => {
   test("returns an empty array when passed empty array", () => {
-    expect(formatProperties()).toEqual([]);
+    expect(formatProperties([])).toEqual([]);
   });
 
   test("when passed an array of property objects, returns an array of arrays", () => {
-    //console.log(formatProperties(singlePropertyArray));
     expect(Array.isArray(formatProperties(singlePropertyArray, usernameRef)[0])).toBe(true);
   });
 
@@ -152,5 +193,49 @@ describe("createPropertyRef function", () => {
     ];
     const ref = createPropertyRef(properties);
     expect(ref).toEqual({ "Modern Apartment in City Center": 1, "Cosy Family House": 2 });
+  });
+});
+
+describe("formatReviews function", () => {
+  test("returns an empty array when passed an empty array", () => {
+    expect(formatReviews([])).toEqual([]);
+  });
+
+  test("when passed an array of property objects, returns an array of arrays", () => {
+    expect(Array.isArray(formatReviews(singleReviewArray, usernameRef, propertyRef)[0])).toBe(true);
+  });
+
+  test("returned review arrays contain property_id (int) instead of property_name (str) as the first element", () => {
+    const formattedReviews = formatReviews(singleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[0][0]).toBe(3);
+  });
+
+  test("returned review arrays contain guest_id (int) instead of guest_name (str) as the second element", () => {
+    const formattedReviews = formatReviews(singleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[0][1]).toBe(3);
+  });
+
+  test("third element of returned review array equals the value on the rating key of the passed object", () => {
+    const formattedReviews = formatReviews(singleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[0][2]).toBe(singleReviewArray[0].rating);
+  });
+
+  test("fourth element of returned review array equals the value on the comment key of the passed object", () => {
+    const formattedReviews = formatReviews(singleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[0][3]).toBe(singleReviewArray[0].comment);
+  });
+
+  test("fifth element of returned review array equals the value on the created_at key of the passed object", () => {
+    const formattedReviews = formatReviews(singleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[0][4]).toBe(singleReviewArray[0].created_at);
+  });
+
+  test("function works when passed arrays containing multiple review objects", () => {
+    const formattedReviews = formatReviews(multipleReviewArray, usernameRef, propertyRef);
+    expect(formattedReviews[1][0]).toBe(1);
+    expect(formattedReviews[1][1]).toBe(2);
+    expect(formattedReviews[1][2]).toBe(multipleReviewArray[1].rating);
+    expect(formattedReviews[1][3]).toBe(multipleReviewArray[1].comment);
+    expect(formattedReviews[1][4]).toBe(multipleReviewArray[1].created_at);
   });
 });

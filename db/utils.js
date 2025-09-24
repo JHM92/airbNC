@@ -12,9 +12,6 @@ function createUserRef(users) {
 }
 
 function formatProperties(properties, ref) {
-  if (!properties) {
-    return [];
-  }
   return properties.map(
     ({ name, property_type, location, price_per_night, description, host_name }) => [
       ref[host_name],
@@ -35,4 +32,13 @@ function createPropertyRef(properties) {
   return ref;
 }
 
-module.exports = { createUserRef, createPropertyRef, formatProperties };
+function formatReviews(reviews, userRef, propertyRef) {
+  return reviews.map(({ guest_name, property_name, rating, comment, created_at }) => [
+    propertyRef[property_name],
+    userRef[guest_name],
+    rating,
+    comment,
+    created_at,
+  ]);
+}
+module.exports = { createUserRef, createPropertyRef, formatProperties, formatReviews };
