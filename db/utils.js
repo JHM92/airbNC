@@ -27,4 +27,12 @@ function formatProperties(properties, ref) {
   );
 }
 
-module.exports = { createUserRef, formatProperties };
+function createPropertyRef(properties) {
+  const ref = {};
+  for (const property of properties) {
+    ref[property.name] = property.property_id;
+  }
+  return ref;
+}
+
+module.exports = { createUserRef, createPropertyRef, formatProperties };

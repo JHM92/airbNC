@@ -1,4 +1,4 @@
-const { createUserRef, formatProperties } = require("../db/utils");
+const { createUserRef, createPropertyRef, formatProperties } = require("../db/utils");
 
 let singlePropertyArray = [];
 let multiplePropertyArray = [];
@@ -125,5 +125,32 @@ describe("formatProperties function", () => {
     expect(formattedProperties[1][3]).toBe(multiplePropertyArray[1].property_type);
     expect(formattedProperties[1][4]).toBe(multiplePropertyArray[1].price_per_night);
     expect(formattedProperties[1][5]).toBe(multiplePropertyArray[1].description);
+  });
+});
+
+describe("createPropertyRef function", () => {
+  test("Returns empty object when passed empty array", () => {
+    expect(createPropertyRef([])).toEqual({});
+  });
+
+  test("assigns property's name as key on ref object", () => {
+    const properties = [{ property_id: 1, name: "Modern Apartment in City Center" }];
+    const ref = createPropertyRef(properties);
+    expect(Object.keys(ref)).toEqual(["Modern Apartment in City Center"]);
+  });
+
+  test("assigns property_id as the value on the property's name key", () => {
+    const properties = [{ property_id: 1, name: "Modern Apartment in City Center" }];
+    const ref = createPropertyRef(properties);
+    expect(ref["Modern Apartment in City Center"]).toBe(1);
+  });
+
+  test("function works with arrays of multiple elements", () => {
+    const properties = [
+      { property_id: 1, name: "Modern Apartment in City Center" },
+      { property_id: 2, name: "Cosy Family House" },
+    ];
+    const ref = createPropertyRef(properties);
+    expect(ref).toEqual({ "Modern Apartment in City Center": 1, "Cosy Family House": 2 });
   });
 });
