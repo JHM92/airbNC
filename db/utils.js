@@ -11,4 +11,20 @@ function createUserRef(users) {
   return ref;
 }
 
-module.exports = createUserRef;
+function formatProperties(properties, ref) {
+  if (!properties) {
+    return [];
+  }
+  return properties.map(
+    ({ name, property_type, location, price_per_night, description, host_name }) => [
+      ref[host_name],
+      name,
+      location,
+      property_type,
+      price_per_night,
+      description,
+    ]
+  );
+}
+
+module.exports = { createUserRef, formatProperties };
