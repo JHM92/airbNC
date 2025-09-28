@@ -3,6 +3,7 @@ const {
   createPropertyRef,
   formatProperties,
   formatReviews,
+  formatImages,
 } = require("../db/utils");
 
 let singlePropertyArray = [];
@@ -11,6 +12,8 @@ let usernameRef = [];
 let propertyRef = [];
 let singleReviewArray = [];
 let multipleReviewArray = [];
+let singleImageArray = [];
+let multipleImageArray = [];
 beforeEach(() => {
   singlePropertyArray = [
     {
@@ -83,6 +86,37 @@ beforeEach(() => {
       rating: 2,
       comment: "Comment about Modern Apartment in City Center",
       created_at: "2024-04-12T14:45:00Z",
+    },
+  ];
+
+  singleImageArray = [
+    {
+      property_name: "Modern Apartment in City Center",
+      image_url: "https://example.com/images/modern_apartment_1.jpg",
+      alt_tag: "Alt tag for Modern Apartment in City Center",
+    },
+  ];
+
+  multipleImageArray = [
+    {
+      property_name: "Modern Apartment in City Center",
+      image_url: "https://example.com/images/modern_apartment_1.jpg",
+      alt_tag: "Alt tag for Modern Apartment in City Center",
+    },
+    {
+      property_name: "Modern Apartment in City Center",
+      image_url: "https://example.com/images/modern_apartment_3.jpg",
+      alt_tag: "Alt tag for Modern Apartment in City Center 2",
+    },
+    {
+      property_name: "Modern Apartment in City Center",
+      image_url: "https://example.com/images/modern_apartment_3.jpg",
+      alt_tag: "Alt tag for Modern Apartment in City Center 3",
+    },
+    {
+      property_name: "Cosy Family House",
+      image_url: "https://example.com/images/cosy_family_house_1.jpg",
+      alt_tag: "Alt tag for Cosy Family House",
     },
   ];
 });
@@ -237,5 +271,37 @@ describe("formatReviews function", () => {
     expect(formattedReviews[1][2]).toBe(multipleReviewArray[1].rating);
     expect(formattedReviews[1][3]).toBe(multipleReviewArray[1].comment);
     expect(formattedReviews[1][4]).toBe(multipleReviewArray[1].created_at);
+  });
+});
+
+describe("formatImages function", () => {
+  test("returns an empty array when passed an empty array", () => {
+    expect(formatImages([])).toEqual([]);
+  });
+
+  test("when passed an array of property objects, returns an array of arrays", () => {
+    expect(Array.isArray(formatImages(singleReviewArray, propertyRef)[0])).toBe(true);
+  });
+
+  test("returned image arrays contain image_id instead of image name as the first element", () => {
+    const formattedImages = formatImages(singleImageArray, propertyRef);
+    expect(formattedImages[0][0]).toBe(1);
+  });
+
+  test("second element of returned array equals the value on the image_url key of the passed object", () => {
+    const formattedImages = formatImages(singleImageArray, propertyRef);
+    expect(formattedImages[0][1]).toBe(singleImageArray[0].image_url);
+  });
+
+  test("third element of returned array equals the value on the alt_tag key of the passed object", () => {
+    const formattedImages = formatImages(singleImageArray, propertyRef);
+    expect(formattedImages[0][2]).toBe(singleImageArray[0].alt_tag);
+  });
+
+  test("function works when passed arrays containing multiple image objects", () => {
+    const formattedImages = formatImages(multipleImageArray, propertyRef);
+    expect(formattedImages[3][0]).toBe(2);
+    expect(formattedImages[3][1]).toBe(multipleImageArray[3].image_url);
+    expect(formattedImages[3][2]).toBe(multipleImageArray[3].alt_tag);
   });
 });

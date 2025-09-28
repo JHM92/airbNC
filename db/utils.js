@@ -41,4 +41,19 @@ function formatReviews(reviews, userRef, propertyRef) {
     created_at,
   ]);
 }
-module.exports = { createUserRef, createPropertyRef, formatProperties, formatReviews };
+
+function formatImages(images, propertyRef) {
+  return images.map(({ property_name, image_url, alt_tag }) => [
+    propertyRef[property_name],
+    image_url,
+    alt_tag,
+  ]);
+}
+
+module.exports = {
+  createUserRef,
+  createPropertyRef,
+  formatProperties,
+  formatReviews,
+  formatImages,
+};
