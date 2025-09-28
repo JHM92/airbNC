@@ -1,9 +1,15 @@
 const db = require("./connection.js");
 const format = require("pg-format");
 const dropTables = require("./queries/drops.js");
-const { createUserRef, formatProperties, createPropertyRef, formatReviews } = require("./utils.js");
+const {
+  createUserRef,
+  formatProperties,
+  createPropertyRef,
+  formatReviews,
+  formatImages,
+} = require("./utils.js");
 
-async function seed(property_types, users, properties, reviews) {
+async function seed(property_types, users, properties, reviews, images) {
   await dropTables();
 
   // create property_types table
@@ -35,6 +41,7 @@ async function seed(property_types, users, properties, reviews) {
         description TEXT
         );`);
 
+  // create reviews table
   await db.query(`CREATE TABLE reviews(
         review_id SERIAL PRIMARY KEY,
         property_id INT NOT NULL REFERENCES properties(property_id),
@@ -42,6 +49,14 @@ async function seed(property_types, users, properties, reviews) {
         rating INT NOT NULL,
         comment TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );`);
+
+  //create images table
+  await db.query(`CREATE TABLE images(
+        image_id SERIAL PRIMARY KEY,
+        property_id INT NOT NULL REFERENCES properties(property_id),
+        image_url varchar(100) NOT NULL,
+        alt_text varchar(100) NOT NULL
         );`);
 
   // Insert data into property_types table
@@ -84,6 +99,13 @@ async function seed(property_types, users, properties, reviews) {
     format(
       `INSERT INTO reviews (property_id, guest_id, rating, comment, created_at) VALUES %L`,
       formatReviews(reviews, userRef, propertyRef)
+    )
+  );
+
+  await db.query(
+    format(
+      `INSERT INTO images (property_id, image_url, alt_text) VALUES %L`,
+      formatImages(images, propertyRef)
     )
   );
 }
