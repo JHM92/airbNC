@@ -4,6 +4,7 @@ const {
   formatProperties,
   formatReviews,
   formatImages,
+  formatFavourites,
 } = require("../db/utils");
 
 let singlePropertyArray = [];
@@ -14,6 +15,8 @@ let singleReviewArray = [];
 let multipleReviewArray = [];
 let singleImageArray = [];
 let multipleImageArray = [];
+let singleFavouritesArray = [];
+let multipleFavouritesArray = [];
 beforeEach(() => {
   singlePropertyArray = [
     {
@@ -54,12 +57,17 @@ beforeEach(() => {
     { user_id: 1, first_name: "Alice", surname: "Johnson" },
     { user_id: 2, first_name: "Bob", surname: "Smith" },
     { user_id: 3, first_name: "Frank", surname: "White" },
+    { user_id: 4, first_name: "Rachel", surname: "Cummings" },
   ]);
 
   propertyRef = createPropertyRef([
     { property_id: 1, name: "Modern Apartment in City Center" },
     { property_id: 2, name: "Cosy Family House" },
     { property_id: 3, name: "Chic Studio Near the Beach" },
+    { property_id: 4, name: "Luxury Penthouse with View" },
+    { property_id: 5, name: "Seaside Studio Getaway" },
+    { property_id: 6, name: "Quaint Cottage in the Hills" },
+    { property_id: 7, name: "Cosy Loft in the Heart of the City" },
   ]);
 
   singleReviewArray = [
@@ -117,6 +125,36 @@ beforeEach(() => {
       property_name: "Cosy Family House",
       image_url: "https://example.com/images/cosy_family_house_1.jpg",
       alt_tag: "Alt tag for Cosy Family House",
+    },
+  ];
+
+  singleFavouritesArray = [
+    {
+      guest_name: "Rachel Cummings",
+      property_name: "Modern Apartment in City Center",
+    },
+  ];
+
+  multipleFavouritesArray = [
+    {
+      guest_name: "Rachel Cummings",
+      property_name: "Modern Apartment in City Center",
+    },
+    {
+      guest_name: "Frank White",
+      property_name: "Luxury Penthouse with View",
+    },
+    {
+      guest_name: "Bob Smith",
+      property_name: "Seaside Studio Getaway",
+    },
+    {
+      guest_name: "Rachel Cummings",
+      property_name: "Quaint Cottage in the Hills",
+    },
+    {
+      guest_name: "Frank White",
+      property_name: "Cosy Loft in the Heart of the City",
     },
   ];
 });
@@ -303,5 +341,37 @@ describe("formatImages function", () => {
     expect(formattedImages[3][0]).toBe(2);
     expect(formattedImages[3][1]).toBe(multipleImageArray[3].image_url);
     expect(formattedImages[3][2]).toBe(multipleImageArray[3].alt_tag);
+  });
+
+  describe("formatFavourites function", () => {
+    test("returns an empty array when passed an empty array", () => {
+      expect(formatFavourites([])).toEqual([]);
+    });
+
+    test("when passed an array of favourite objects, returns an array of arrays", () => {
+      expect(
+        Array.isArray(formatFavourites(singleFavouritesArray, usernameRef, propertyRef)[0])
+      ).toBe(true);
+    });
+
+    test("returned favourite arrays contain guest_id instead of guest_name", () => {
+      const formattedFavourites = formatFavourites(singleFavouritesArray, usernameRef, propertyRef);
+      expect(formattedFavourites[0][0]).toBe(4);
+    });
+
+    test("returned favourite arrays contain property_id instead of property_name", () => {
+      const formattedFavourites = formatFavourites(singleFavouritesArray, usernameRef, propertyRef);
+      expect(formattedFavourites[0][1]).toBe(1);
+    });
+
+    test("function works when passed arrays containing multiple favourites objects", () => {
+      const formattedFavourites = formatFavourites(
+        multipleFavouritesArray,
+        usernameRef,
+        propertyRef
+      );
+      expect(formattedFavourites[2][0]).toBe(2);
+      expect(formattedFavourites[2][1]).toBe(5);
+    });
   });
 });

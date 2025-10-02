@@ -50,10 +50,18 @@ function formatImages(images, propertyRef) {
   ]);
 }
 
+function formatFavourites(favourites, userRef, propertyRef) {
+  return favourites.map(({ guest_name, property_name }) => [
+    userRef[guest_name],
+    propertyRef[property_name],
+  ]);
+}
+
 module.exports = {
   createUserRef,
   createPropertyRef,
   formatProperties,
   formatReviews,
   formatImages,
+  formatFavourites,
 };

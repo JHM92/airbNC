@@ -7,9 +7,10 @@ const {
   createPropertyRef,
   formatReviews,
   formatImages,
+  formatFavourites,
 } = require("./utils.js");
 
-async function seed(property_types, users, properties, reviews, images) {
+async function seed(property_types, users, properties, reviews, images, favourites) {
   await dropTables();
 
   // create property_types table
@@ -51,13 +52,20 @@ async function seed(property_types, users, properties, reviews, images) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`);
 
-  //create images table
+  // create images table
   await db.query(`CREATE TABLE images(
         image_id SERIAL PRIMARY KEY,
         property_id INT NOT NULL REFERENCES properties(property_id),
         image_url varchar(100) NOT NULL,
         alt_text varchar(100) NOT NULL
         );`);
+
+  // create favourites table
+  await db.query(`CREATE TABLE favourites(
+    favourite_id SERIAL PRIMARY KEY,
+    guest_id INT NOT NULL REFERENCES users(user_id),
+    property_id INT NOT NULL REFERENCES properties(property_id)
+    );`);
 
   // Insert data into property_types table
   await db.query(
@@ -106,6 +114,13 @@ async function seed(property_types, users, properties, reviews, images) {
     format(
       `INSERT INTO images (property_id, image_url, alt_text) VALUES %L`,
       formatImages(images, propertyRef)
+    )
+  );
+
+  await db.query(
+    format(
+      `INSERT INTO favourites (guest_id, property_id) VALUES %L`,
+      formatFavourites(favourites, userRef, propertyRef)
     )
   );
 }
