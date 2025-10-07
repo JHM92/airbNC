@@ -1,10 +1,8 @@
 const express = require("express");
+const { getProperties } = require("./controllers/properties");
 
 const app = express();
 
-app.get("/api/test", (req, res, next) => {
-  console.log("!!!");
-  res.status(200).send("!!!");
-});
+app.get("/api/properties", getProperties);
 
 module.exports = app;
