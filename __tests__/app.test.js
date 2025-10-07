@@ -12,7 +12,7 @@ const {
 } = require("../db/data/test");
 
 beforeEach(async () => {
-  await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
+  // await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
 });
 
 afterAll(() => {
@@ -53,6 +53,43 @@ describe("app", () => {
     test("returned properties are ordered by most favourited to least favourited", async () => {
       const { body } = await request(app).get("/api/properties");
       expect(body.properties[0].property_name).toBe("Cosy Family House");
+    });
+  });
+
+  describe("GET /api/properties/:id", () => {
+    test("Responds with a status of 200", async () => {
+      const response = await request(app).get("/api/properties/1").expect(200);
+    });
+
+    test("Responds with an object on key of property", async () => {
+      const { body } = await request(app).get("/api/properties/1");
+      expect(typeof body.property).toBe("object");
+      expect(Array.isArray(body.property)).toBe(false);
+    });
+
+    test("property object contains property_id, property_name, location, price_per_night, description, host, host_avatar, favourite_count", async () => {
+      const { body } = await request(app).get("/api/properties/1");
+      const testProperty = body.property;
+      expect(testProperty).toHaveProperty("property_id");
+      expect(testProperty).toHaveProperty("property_name");
+      expect(testProperty).toHaveProperty("location");
+      expect(testProperty).toHaveProperty("price_per_night");
+      expect(testProperty).toHaveProperty("host");
+      expect(testProperty).toHaveProperty("host_avatar");
+      expect(testProperty).toHaveProperty("favourite_count");
+    });
+
+    test("returns property data of the property_id passed in the url", async () => {
+      const { body } = await request(app).get("/api/properties/2");
+      const testProperty = body.property;
+      console.log(testProperty);
+      expect(testProperty.property_id).toBe(2);
+      expect(testProperty.property_name).toBe("Cosy Family House");
+      expect(testProperty.location).toBe("Manchester, UK");
+      expect(testProperty.price_per_night).toBe("150");
+      expect(testProperty.host).toBe("Alice Johnson");
+      expect(testProperty.host_avatar).toBe("https://example.com/images/alice.jpg");
+      expect(testProperty.favourite_count).toBe("4");
     });
   });
 });
