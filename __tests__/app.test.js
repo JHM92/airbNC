@@ -20,6 +20,11 @@ afterAll(() => {
 });
 
 describe("app", () => {
+  test("404 - path not found", async () => {
+    const { body } = await request(app).get("/api/invalid/path").expect(404);
+    expect(body.msg).toBe("Path not found");
+  });
+
   describe("GET /api/properties", () => {
     test("Responds with status of 200", async () => {
       const response = await request(app).get("/api/properties").expect(200);
