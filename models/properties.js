@@ -17,9 +17,7 @@ exports.fetchProperties = async () => {
 };
 
 exports.fetchPropertyById = async (id) => {
-  const {
-    rows: [property],
-  } = await db.query(
+  const { rows: property } = await db.query(
     `SELECT properties.property_id,
     properties.name AS property_name,
     properties.location,
@@ -38,5 +36,9 @@ exports.fetchPropertyById = async (id) => {
     [id]
   );
 
-  return property;
+  if (property.length === 0) {
+    return Promise.reject({ status: 404, msg: "Property not found" });
+  } else {
+    return property[0];
+  }
 };

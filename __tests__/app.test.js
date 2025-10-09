@@ -82,7 +82,6 @@ describe("app", () => {
     test("returns property data of the property_id passed in the url", async () => {
       const { body } = await request(app).get("/api/properties/2");
       const testProperty = body.property;
-      console.log(testProperty);
       expect(testProperty.property_id).toBe(2);
       expect(testProperty.property_name).toBe("Cosy Family House");
       expect(testProperty.location).toBe("Manchester, UK");
@@ -90,6 +89,16 @@ describe("app", () => {
       expect(testProperty.host).toBe("Alice Johnson");
       expect(testProperty.host_avatar).toBe("https://example.com/images/alice.jpg");
       expect(testProperty.favourite_count).toBe("4");
+    });
+
+    test("returns status 400 when passed an invalid property id", async () => {
+      const { body } = await request(app).get("/api/properties/invalid-id").expect(400);
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("returns status 404 when passed a valid but non-existant property id", async () => {
+      const { body } = await request(app).get("/api/properties/1000000").expect(404);
+      expect(body.msg).toBe("Property not found");
     });
   });
 });
