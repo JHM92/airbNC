@@ -101,4 +101,49 @@ describe("app", () => {
       expect(body.msg).toBe("Property not found");
     });
   });
+
+  describe("GET /api/users/:id", () => {
+    test("Responds with a status of 200", async () => {
+      const response = await request(app).get("/api/users/1").expect(200);
+    });
+
+    test("Responds with an object on key of user", async () => {
+      const { body } = await request(app).get("/api/users/1");
+      expect(typeof body.user).toBe("object");
+      expect(Array.isArray(body.user)).toBe(false);
+    });
+
+    test("user object contains user_id, first_name, surname, email, phone_number, avatar, created_at", async () => {
+      const { body } = await request(app).get("/api/users/1");
+      const testUser = body.user;
+      expect(testUser).toHaveProperty("user_id");
+      expect(testUser).toHaveProperty("first_name");
+      expect(testUser).toHaveProperty("surname");
+      expect(testUser).toHaveProperty("email");
+      expect(testUser).toHaveProperty("phone_number");
+      expect(testUser).toHaveProperty("avatar");
+      expect(testUser).toHaveProperty("created_at");
+    });
+
+    test("returns user data of the user passed in the url", async () => {
+      const { body } = await request(app).get("/api/users/2");
+      const testUser = body.user;
+      expect(testUser.user_id).toBe(2);
+      expect(testUser.first_name).toBe("Bob");
+      expect(testUser.surname).toBe("Smith");
+      expect(testUser.email).toBe("bob@example.com");
+      expect(testUser.phone_number).toBe("+44 7000 222222");
+      expect(testUser.avatar).toBe("https://example.com/images/bob.jpg");
+    });
+
+    test("returns status 400 when passed an invalid user id", async () => {
+      const { body } = await request(app).get("/api/users/invalid-id").expect(400);
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("returns status 404 when passed a valid but non-existant user id", async () => {
+      const { body } = await request(app).get("/api/users/1000000").expect(404);
+      expect(body.msg).toBe("User not found");
+    });
+  });
 });

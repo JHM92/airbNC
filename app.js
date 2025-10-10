@@ -7,11 +7,15 @@ const {
   handleCustomErrors,
 } = require("./errors");
 
+const { getUserById } = require("./controllers/users");
+
 const app = express();
 
 app.get("/api/properties", getProperties);
 
 app.get("/api/properties/:id", getPropertyById);
+
+app.get("/api/users/:id", getUserById);
 
 app.all("/*path", handlePathNotFound);
 
