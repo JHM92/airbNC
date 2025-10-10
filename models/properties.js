@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const { fetchUserById } = require("./users");
 
 exports.fetchProperties = async () => {
   const { rows: properties } = await db.query(
@@ -16,7 +17,9 @@ exports.fetchProperties = async () => {
   return properties;
 };
 
-exports.fetchPropertyById = async (id) => {
+exports.fetchPropertyById = async (args) => {
+  const property_id = args[0];
+
   const { rows: property } = await db.query(
     `SELECT properties.property_id,
     properties.name AS property_name,
@@ -33,8 +36,35 @@ exports.fetchPropertyById = async (id) => {
     GROUP BY properties.property_id, property_name, properties.location, 
     properties.price_per_night, properties.description, host, host_avatar;
     `,
-    [id]
+    [property_id]
   );
+
+  if (args.length === 2) {
+    const user_id = args[1];
+    const {
+      rows: [isFavourited],
+    } = await db.query(
+      `SELECT * FROM favourites
+    WHERE favourites.guest_id = $1
+    AND favourites.property_id = $2;
+    `,
+      [user_id, property_id]
+    );
+
+    if (isFavourited === undefined) {
+      property[0]["favourited"] = false;
+      const { rows: checkId } = await db.query(
+        `
+        SELECT * FROM users WHERE user_id = $1`,
+        [user_id]
+      );
+      if (checkId.length === 0) {
+        return Promise.reject({ status: 404, msg: "User not found" });
+      }
+    } else {
+      property[0]["favourited"] = true;
+    }
+  }
 
   if (property.length === 0) {
     return Promise.reject({ status: 404, msg: "Property not found" });
@@ -42,3 +72,30 @@ exports.fetchPropertyById = async (id) => {
     return property[0];
   }
 };
+
+/*
+SELECT properties.property_id,
+properties.name AS property_name,
+properties.location,
+properties.price_per_night,
+properties.description,
+users.first_name || ' ' || users.surname AS host,
+users.avatar AS host_avatar,
+COUNT(properties.property_id) AS favourite_count 
+FROM properties
+JOIN users ON properties.host_id = users.user_id
+LEFT JOIN favourites ON properties.property_id = favourites.property_id
+WHERE properties.property_id = 1
+GROUP BY properties.property_id, property_name, properties.location, 
+properties.price_per_night, properties.description, host, host_avatar;
+
+
+SELECT * FROM favourites
+WHERE favourites.guest_id = 1
+AND favourites.property_id = 1;
+
+SELECT * FROM favourites
+WHERE favourites.guest_id = 6
+AND favourites.property_id = 1;
+
+    */

@@ -91,6 +91,14 @@ describe("app", () => {
       expect(testProperty.favourite_count).toBe("4");
     });
 
+    test("accepts optional query user_id which adds favourited property to the property object", async () => {
+      const { body: testUserId1 } = await request(app).get("/api/properties/1?user_id=1");
+      expect(testUserId1.property.favourited).toBe(false);
+
+      const { body: testUserId6 } = await request(app).get("/api/properties/1?user_id=6");
+      expect(testUserId6.property.favourited).toBe(true);
+    });
+
     test("returns status 400 when passed an invalid property id", async () => {
       const { body } = await request(app).get("/api/properties/invalid-id").expect(400);
       expect(body.msg).toBe("Bad Request");
@@ -99,6 +107,16 @@ describe("app", () => {
     test("returns status 404 when passed a valid but non-existant property id", async () => {
       const { body } = await request(app).get("/api/properties/1000000").expect(404);
       expect(body.msg).toBe("Property not found");
+    });
+
+    test("returns status 400 when passed an invalid user id", async () => {
+      const { body } = await request(app).get("/api/properties/1?user_id=invalid-id").expect(400);
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("returns status 404 when passed a valid but non-existant user id", async () => {
+      const { body } = await request(app).get("/api/properties/1?user_id=10000000").expect(404);
+      expect(body.msg).toBe("User not found");
     });
   });
 
