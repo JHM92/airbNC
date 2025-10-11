@@ -110,6 +110,7 @@ async function seed(property_types, users, properties, reviews, images, favourit
     )
   );
 
+  // Insert data into images table
   await db.query(
     format(
       `INSERT INTO images (property_id, image_url, alt_text) VALUES %L`,
@@ -117,6 +118,7 @@ async function seed(property_types, users, properties, reviews, images, favourit
     )
   );
 
+  // Insert data into favourites table
   await db.query(
     format(
       `INSERT INTO favourites (guest_id, property_id) VALUES %L`,

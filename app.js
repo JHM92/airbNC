@@ -8,6 +8,7 @@ const {
 } = require("./errors");
 
 const { getUserById } = require("./controllers/users");
+const { getReviewsByPropertyId } = require("./controllers/reviews");
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.get("/api/properties", getProperties);
 app.get("/api/properties/:id", getPropertyById);
 
 app.get("/api/users/:id", getUserById);
+
+app.get("/api/properties/:id/reviews", getReviewsByPropertyId);
 
 app.all("/*path", handlePathNotFound);
 

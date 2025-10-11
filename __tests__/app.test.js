@@ -164,4 +164,55 @@ describe("app", () => {
       expect(body.msg).toBe("User not found");
     });
   });
+
+  describe("GET /api/properties/:id/reviews", () => {
+    test("Responds with a status of 200", async () => {
+      const response = await request(app).get("/api/properties/1/reviews").expect(200);
+    });
+
+    test("Responds with an object containing an array on the key of reviews and has a key of average_rating", async () => {
+      const { body } = await request(app).get("/api/properties/1/reviews");
+      expect(Array.isArray(body.reviews)).toBe(true);
+      expect(body).toHaveProperty("average_rating");
+    });
+
+    test("Review object contains review_id, comment, rating, created_at, guest, guest_avatar", async () => {
+      const { body } = await request(app).get("/api/properties/1/reviews");
+      const testReview = body.reviews[0];
+      expect(testReview).toHaveProperty("review_id");
+      expect(testReview).toHaveProperty("comment");
+      expect(testReview).toHaveProperty("rating");
+      expect(testReview).toHaveProperty("created_at");
+      expect(testReview).toHaveProperty("guest");
+      expect(testReview).toHaveProperty("guest_avatar");
+    });
+
+    test("returns review data for the property_id passed in the url", async () => {
+      const { body } = await request(app).get("/api/properties/4/reviews");
+      const testReview = body.reviews[0];
+      expect(testReview.review_id).toBe(4);
+      expect(testReview.comment).toBe("Comment about Elegant City Apartment");
+      expect(testReview.rating).toBe(2);
+      // expect(testReview.created_at).toBe("2024-08-03T16:20:00Z");
+      expect(testReview.guest).toBe("Frank White");
+      expect(testReview.guest_avatar).toBe("https://example.com/images/frank.jpg");
+    });
+
+    test.todo("returned reviews are ordered from most recent to oldest");
+
+    test("average_rating returns the average of all review ratings of a property", async () => {
+      const { body } = await request(app).get("/api/properties/5/reviews");
+      expect(body.average_rating).toBe(4.5);
+    });
+
+    test("returns status 400 when passed an invalid property id", async () => {
+      const { body } = await request(app).get("/api/properties/invalid-id/reviews").expect(400);
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("returns status 404 when passed a valid but non-existant property id", async () => {
+      const { body } = await request(app).get("/api/properties/10000000/reviews").expect(404);
+      expect(body.msg).toBe("Property not found");
+    });
+  });
 });
