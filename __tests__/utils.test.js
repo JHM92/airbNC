@@ -5,6 +5,7 @@ const {
   formatReviews,
   formatImages,
   formatFavourites,
+  calculateAverage,
 } = require("../db/utils");
 
 let singlePropertyArray = [];
@@ -373,5 +374,19 @@ describe("formatImages function", () => {
       expect(formattedFavourites[2][0]).toBe(2);
       expect(formattedFavourites[2][1]).toBe(5);
     });
+  });
+});
+
+describe("calculateAverageRating", () => {
+  test("returns undefined when passed empty array", () => {
+    expect(calculateAverage([])).toBe(undefined);
+  });
+
+  test("returns value of first element when passed an array containing a single element", () => {
+    expect(calculateAverage([1])).toBe(1);
+  });
+
+  test("returns mean average of all elements in passed array", () => {
+    expect(calculateAverage([3, 4, 5])).toBe(4);
   });
 });

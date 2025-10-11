@@ -57,6 +57,18 @@ function formatFavourites(favourites, userRef, propertyRef) {
   ]);
 }
 
+function calculateAverage(numbers) {
+  if (numbers.length === 0) {
+    return undefined;
+  }
+  let sum = 0;
+  for (const number of numbers) {
+    sum += number;
+  }
+
+  return sum / numbers.length;
+}
+
 module.exports = {
   createUserRef,
   createPropertyRef,
@@ -64,4 +76,5 @@ module.exports = {
   formatReviews,
   formatImages,
   formatFavourites,
+  calculateAverage,
 };
