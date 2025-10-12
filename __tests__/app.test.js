@@ -216,7 +216,7 @@ describe("app", () => {
     });
   });
 
-  describe.only("POST /api/properties/:id/reviews", () => {
+  describe("POST /api/properties/:id/reviews", () => {
     test("Repsonds with status of 201", async () => {
       const testReview = { guest_id: 1, rating: 5, comment: "test comment" };
       const response = await request(app)
@@ -317,6 +317,37 @@ describe("app", () => {
         .expect(404);
 
       expect(body.msg).toBe("Property not found");
+    });
+  });
+
+  describe.only("DELETE /api/reviews/:id", () => {
+    test("Responds with status of 204", async () => {
+      const response = await request(app).delete("/api/reviews/4").expect(204);
+    });
+
+    test("Removes row of passed review_id from the reviews table", async () => {
+      const {
+        body: { reviews: reviewsBeforeDeletion },
+      } = await request(app).get("/api/properties/4/reviews");
+
+      expect(reviewsBeforeDeletion.length).toBe(1);
+
+      await request(app).delete("/api/reviews/4").expect(204);
+
+      const {
+        body: { reviews: reviewsAfterDeletion },
+      } = await request(app).get("/api/properties/4/reviews");
+      expect(reviewsAfterDeletion.length).toBe(0);
+    });
+
+    test("Responds with status 400 when passed an invalid review_id", async () => {
+      const { body } = await request(app).delete("/api/reviews/invalid-id").expect(400);
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 404 when passed a valid but non-existent review_id", async () => {
+      const { body } = await request(app).delete("/api/reviews/100000").expect(404);
+      expect(body.msg).toBe("Review not found");
     });
   });
 });

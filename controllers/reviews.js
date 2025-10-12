@@ -1,4 +1,8 @@
-const { fetchReviewsByPropertyId, insertPropertyReview } = require("../models/reviews");
+const {
+  fetchReviewsByPropertyId,
+  insertPropertyReview,
+  removeReviewById,
+} = require("../models/reviews");
 
 exports.getReviewsByPropertyId = async (req, res, next) => {
   const property_id = req.params.id;
@@ -11,4 +15,10 @@ exports.postPropertyReview = async (req, res, next) => {
   const { id: property_id } = req.params;
   const review = await insertPropertyReview(guest_id, rating, comment, property_id);
   res.status(201).send(review);
+};
+
+exports.deleteReviewById = async (req, res, next) => {
+  const { id } = req.params;
+  await removeReviewById(id);
+  res.status(204).send();
 };

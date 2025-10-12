@@ -8,7 +8,11 @@ const {
 } = require("./errors");
 
 const { getUserById } = require("./controllers/users");
-const { getReviewsByPropertyId, postPropertyReview } = require("./controllers/reviews");
+const {
+  getReviewsByPropertyId,
+  postPropertyReview,
+  deleteReviewById,
+} = require("./controllers/reviews");
 
 const app = express();
 
@@ -23,6 +27,8 @@ app.get("/api/users/:id", getUserById);
 app.get("/api/properties/:id/reviews", getReviewsByPropertyId);
 
 app.post("/api/properties/:id/reviews", postPropertyReview);
+
+app.delete("/api/reviews/:id", deleteReviewById);
 
 app.all("/*path", handlePathNotFound);
 
