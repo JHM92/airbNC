@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 const { calculateAverage } = require("../db/utils");
 
 exports.fetchReviewsByPropertyId = async (property_id) => {
@@ -31,4 +32,33 @@ exports.fetchReviewsByPropertyId = async (property_id) => {
   const ratings = reviews.map(({ rating }) => rating);
   const averageRating = calculateAverage(ratings);
   return [reviews, averageRating];
+};
+
+exports.insertPropertyReview = async (guest_id, rating, comment, property_id) => {
+  const { rows: checkPropertyId } = await db.query(
+    `
+    SELECT * FROM properties
+    WHERE properties.property_id = $1;`,
+    [property_id]
+  );
+
+  if (checkPropertyId.length === 0) {
+    return Promise.reject({ status: 404, msg: "Property not found" });
+  }
+
+  const valuesToInsert = [guest_id, rating, comment, property_id];
+  const {
+    rows: [insertedReview],
+  } = await db.query(
+    format(
+      `
+    INSERT INTO reviews
+    (guest_id, rating, comment, property_id)
+    VALUES %L
+    RETURNING *`,
+      [valuesToInsert]
+    )
+  );
+
+  return insertedReview;
 };

@@ -12,7 +12,7 @@ const {
 } = require("../db/data/test");
 
 beforeEach(async () => {
-  // await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
+  await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
 });
 
 afterAll(() => {
@@ -212,6 +212,110 @@ describe("app", () => {
 
     test("returns status 404 when passed a valid but non-existant property id", async () => {
       const { body } = await request(app).get("/api/properties/10000000/reviews").expect(404);
+      expect(body.msg).toBe("Property not found");
+    });
+  });
+
+  describe.only("POST /api/properties/:id/reviews", () => {
+    test("Repsonds with status of 201", async () => {
+      const testReview = { guest_id: 1, rating: 5, comment: "test comment" };
+      const response = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(201);
+    });
+
+    test("Responds with newly inserted review plus review_id, property_id and created_at", async () => {
+      const testReview = { guest_id: 1, rating: 5, comment: "test comment" };
+      const { body: inserttedReview } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview);
+
+      expect(inserttedReview.guest_id).toBe(1);
+      expect(inserttedReview.rating).toBe(5);
+      expect(inserttedReview.comment).toBe("test comment");
+      expect(inserttedReview.review_id).toBe(17);
+      expect(inserttedReview.property_id).toBe(1);
+      expect(inserttedReview).toHaveProperty("created_at");
+    });
+
+    test("Responds with status 400 and error message when guest_id is not provided", async () => {
+      const testReview = { rating: 5, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message when guest_id is not provided", async () => {
+      const testReview = { rating: 5, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message when rating is not provided", async () => {
+      const testReview = { guest_id: 1, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 201 when comment is not provided", async () => {
+      const testReview = { guest_id: 1, rating: 5 };
+      const { body: inserttedReview } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(201);
+
+      expect(inserttedReview.comment).toBe(null);
+    });
+
+    test("Responds with status 400 and error message if guest_id is not an integer", async () => {
+      const testReview = { guest_id: "invalid-type", rating: 5, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message if rating is not an integer", async () => {
+      const testReview = { guest_id: 1, rating: "invalid-type", comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message if property_id is invalid type", async () => {
+      const testReview = { guest_id: 1, rating: 5, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/invalid-id/reviews")
+        .send(testReview)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message if property_id is valid but non-existent", async () => {
+      const testReview = { guest_id: 1, rating: 5, comment: "test comment" };
+      const { body } = await request(app)
+        .post("/api/properties/1000000/reviews")
+        .send(testReview)
+        .expect(404);
+
       expect(body.msg).toBe("Property not found");
     });
   });
