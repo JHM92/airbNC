@@ -54,6 +54,31 @@ describe("app", () => {
       const { body } = await request(app).get("/api/properties");
       expect(body.properties[0].property_name).toBe("Cosy Family House");
     });
+
+    test("returns properties of specific property_type when passed optional property_type query", async () => {
+      const { body: apartments } = await request(app).get(
+        "/api/properties?property_type=Apartment"
+      );
+      const { body: houses } = await request(app).get("/api/properties?property_type=House");
+      const { body: studios } = await request(app).get("/api/properties?property_type=Studio");
+      expect(apartments.properties.length).toBe(4);
+      expect(houses.properties.length).toBe(3);
+      expect(studios.properties.length).toBe(4);
+    });
+
+    test("works when passed multiple values for property_type", async () => {
+      const { body: housesAndStudios } = await request(app).get(
+        "/api/properties?property_type=Studio&property_type=House"
+      );
+      expect(housesAndStudios.properties.length).toBe(7);
+    });
+
+    test("Respond with status 404 when passed a property_type that's not in the database", async () => {
+      const { body } = await request(app)
+        .get("/api/properties?property_type=not-in-database")
+        .expect(404);
+      expect(body.msg).toBe("Property type does not exist");
+    });
   });
 
   describe("GET /api/properties/:id", () => {
@@ -320,7 +345,7 @@ describe("app", () => {
     });
   });
 
-  describe.only("DELETE /api/reviews/:id", () => {
+  describe("DELETE /api/reviews/:id", () => {
     test("Responds with status of 204", async () => {
       const response = await request(app).delete("/api/reviews/4").expect(204);
     });

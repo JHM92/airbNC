@@ -1,6 +1,12 @@
 const { fetchProperties, fetchPropertyById } = require("../models/properties");
+
 exports.getProperties = async (req, res, next) => {
-  const properties = await fetchProperties();
+  const args = [];
+  if (Object.hasOwn(req.query, "property_type")) {
+    args.push(req.query.property_type);
+  }
+
+  const properties = await fetchProperties(args);
   res.status(200).send({ properties: properties });
 };
 
