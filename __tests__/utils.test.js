@@ -6,6 +6,7 @@ const {
   formatImages,
   formatFavourites,
   calculateAverage,
+  validatePropertyTypes,
 } = require("../db/utils");
 
 let singlePropertyArray = [];
@@ -388,5 +389,50 @@ describe("calculateAverageRating", () => {
 
   test("returns mean average of all elements in passed array", () => {
     expect(calculateAverage([3, 4, 5])).toBe(4);
+  });
+});
+
+describe("validatePropertyTypes", () => {
+  test("returns false when passed an empty array", () => {
+    const propertyTypesToTest = [];
+    const validPropertyTypes = [
+      { property_type: "House" },
+      { property_type: "Apartment" },
+      { property_type: "Studio" },
+    ];
+    expect(validatePropertyTypes(propertyTypesToTest, validPropertyTypes)).toBe(false);
+  });
+
+  test("returns true when passed a property type that is present in the valid property types", () => {
+    const propertyTypesToTest = ["House"];
+    const validPropertyTypes = [
+      { property_type: "House" },
+      { property_type: "Apartment" },
+      { property_type: "Studio" },
+    ];
+    expect(validatePropertyTypes(propertyTypesToTest, validPropertyTypes)).toBe(true);
+  });
+
+  test("returns false when passed a property type that is not present in the valid property types", () => {
+    const propertyTypesToTest = ["Flat"];
+    const validPropertyTypes = [
+      { property_type: "House" },
+      { property_type: "Apartment" },
+      { property_type: "Studio" },
+    ];
+    expect(validatePropertyTypes(propertyTypesToTest, validPropertyTypes)).toBe(false);
+  });
+
+  test("works when passed multiple property types to test", () => {
+    const propertyTypesToTestTrue = ["House", "Apartment", "Studio"];
+    const propertyTypesToTestFalse = ["House", "Apartment", "Studio", "Flat"];
+    const validPropertyTypes = [
+      { property_type: "House" },
+      { property_type: "Apartment" },
+      { property_type: "Studio" },
+    ];
+
+    expect(validatePropertyTypes(propertyTypesToTestTrue, validPropertyTypes)).toBe(true);
+    expect(validatePropertyTypes(propertyTypesToTestFalse, validPropertyTypes)).toBe(false);
   });
 });

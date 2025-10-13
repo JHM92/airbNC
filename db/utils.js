@@ -69,6 +69,22 @@ function calculateAverage(numbers) {
   return sum / numbers.length;
 }
 
+function validatePropertyTypes(propertyTypesToTest, validPropertyTypes) {
+  const validProperties = validPropertyTypes.map(({ property_type }) => property_type);
+
+  if (propertyTypesToTest.length === 0) {
+    return false;
+  }
+
+  for (const property of propertyTypesToTest) {
+    if (!validProperties.includes(property)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 module.exports = {
   createUserRef,
   createPropertyRef,
@@ -77,4 +93,5 @@ module.exports = {
   formatImages,
   formatFavourites,
   calculateAverage,
+  validatePropertyTypes,
 };
