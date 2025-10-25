@@ -8,6 +8,8 @@ exports.getProperties = async (req, res, next) => {
 
   let sortBy = "";
   let orderBy = "";
+  let minPrice = null;
+  let maxPrice = null;
 
   if (Object.hasOwn(req.query, "sort")) {
     sortBy = req.query.sort;
@@ -17,7 +19,15 @@ exports.getProperties = async (req, res, next) => {
     orderBy = req.query.order;
   }
 
-  const properties = await fetchProperties(propertyTypes, sortBy, orderBy);
+  if (Object.hasOwn(req.query, "minprice")) {
+    minPrice = req.query.minprice;
+  }
+
+  if (Object.hasOwn(req.query, "maxprice")) {
+    maxPrice = req.query.maxprice;
+  }
+
+  const properties = await fetchProperties(propertyTypes, sortBy, orderBy, minPrice, maxPrice);
   res.status(200).send({ properties: properties });
 };
 

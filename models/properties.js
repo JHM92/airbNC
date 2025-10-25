@@ -3,8 +3,9 @@ const { fetchUserById } = require("./users");
 const { getPropertyTypes } = require("../db/queries/queries");
 const { validatePropertyTypes } = require("../db/utils");
 
-exports.fetchProperties = async (propertyTypes, sortBy, orderBy) => {
+exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPrice) => {
   const propertyTypesToValidate = propertyTypes.flat();
+  console.log({ minPrice }, { maxPrice });
 
   const baseQuery = `SELECT properties.property_id, 
     properties.name AS property_name,
@@ -18,10 +19,11 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy) => {
   const groupBy = ` GROUP BY properties.property_id, property_name, properties.location, properties.price_per_night, host
     `;
 
-  let propertyTypeQuery = "";
+  let optionalQueries = "";
   let sortQueryBy = "ORDER BY COUNT(favourites.property_id) DESC";
   let order = "";
 
+  // Optional query property type
   if (propertyTypes.length === 1) {
     const validPropertyTypes = await getPropertyTypes();
     const propertyTypesAreValid = validatePropertyTypes(
@@ -30,17 +32,40 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy) => {
     );
     if (propertyTypesAreValid) {
       for (const propertyType of propertyTypesToValidate) {
-        if (propertyTypeQuery === "") {
-          propertyTypeQuery += ` WHERE properties.property_type = '${propertyType}' `;
+        if (optionalQueries === "") {
+          optionalQueries += ` WHERE (properties.property_type = '${propertyType}' `;
         } else {
-          propertyTypeQuery += `OR properties.property_type = '${propertyType}' `;
+          optionalQueries += `OR properties.property_type = '${propertyType}' `;
         }
       }
+      optionalQueries += ")";
     } else {
       return Promise.reject({ status: 404, msg: "Property type does not exist" });
     }
   }
 
+  // Optional query limit by price
+  if (maxPrice) {
+    if (optionalQueries !== "") {
+      optionalQueries += " AND";
+    } else {
+      optionalQueries += " WHERE";
+    }
+
+    optionalQueries += ` properties.price_per_night <= ${maxPrice}`;
+  }
+
+  if (minPrice) {
+    if (optionalQueries !== "") {
+      optionalQueries += " AND";
+    } else {
+      optionalQueries += " WHERE";
+    }
+
+    optionalQueries += ` properties.price_per_night >= ${minPrice}`;
+  }
+
+  // Optional query sort / order by
   if (orderBy === "ascending") {
     order = "ASC";
   } else if (orderBy === "descending") {
@@ -55,7 +80,7 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy) => {
     console.log(sortQueryBy);
   }
 
-  const finalQuery = baseQuery + propertyTypeQuery + groupBy + sortQueryBy + ";";
+  const finalQuery = baseQuery + optionalQueries + groupBy + sortQueryBy + ";";
   console.log(finalQuery);
 
   const { rows: properties } = await db.query(finalQuery);

@@ -12,7 +12,7 @@ const {
 } = require("../db/data/test");
 
 beforeEach(async () => {
-  // await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
+  await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
 });
 
 afterAll(() => {
@@ -25,7 +25,7 @@ describe("app", () => {
     expect(body.msg).toBe("Path not found");
   });
 
-  describe.only("GET /api/properties", () => {
+  describe("GET /api/properties", () => {
     test("Responds with status of 200", async () => {
       const response = await request(app).get("/api/properties").expect(200);
     });
@@ -80,38 +80,77 @@ describe("app", () => {
       expect(body.msg).toBe("Property type does not exist");
     });
 
-    test("returned property objects are sorted by cost_per_night when passed as optional query", async () => {
-      const { body } = await request(app).get("/api/properties?sort=cost_per_night");
+    describe("optional query: sort/order by", () => {
+      test("returned property objects are sorted by cost_per_night when passed as optional query", async () => {
+        const { body } = await request(app).get("/api/properties?sort=cost_per_night");
 
-      console.log(body.properties);
+        console.log(body.properties);
 
-      expect(body.properties).toBeSortedBy("price_per_night");
+        expect(body.properties).toBeSortedBy("price_per_night");
+      });
+
+      test("returned property objects are sorted by popularity when passed as optional query", async () => {
+        const { body } = await request(app).get("/api/properties?sort=popularity");
+        console.log(body.properties);
+        expect(body.properties[0].property_name).toBe("Elegant City Apartment");
+      });
+
+      test("returned property objects can be sorted ascending and descending when passed optional query", async () => {
+        const { body: popularityAscending } = await request(app).get(
+          "/api/properties?sort=popularity&order=ascending"
+        );
+        const { body: popularityDescending } = await request(app).get(
+          "/api/properties?sort=popularity&order=descending"
+        );
+        const { body: costAscending } = await request(app).get(
+          "/api/properties?sort=cost_per_night&order=ascending"
+        );
+        const { body: costDescending } = await request(app).get(
+          "/api/properties?sort=cost_per_night&order=descending"
+        );
+
+        expect(popularityAscending.properties[0].property_name).toBe("Elegant City Apartment");
+        expect(popularityDescending.properties[0].property_name).toBe("Cosy Family House");
+        expect(costAscending.properties[0].property_name).toBe("Charming Studio Retreat");
+        expect(costDescending.properties[0].property_name).toBe("Luxury Penthouse with View");
+      });
     });
 
-    test("returned property objects are sorted by populartiy when passed as optional query", async () => {
-      const { body } = await request(app).get("/api/properties?sort=popularity");
-      console.log(body.properties);
-      expect(body.properties[0].property_name).toBe("Elegant City Apartment");
-    });
+    describe("optional query: limit by price", () => {
+      test("only returns properties  that cost less than or equal to the maxPrice if passed as optional query", async () => {
+        const { body: testMaxPrice } = await request(app).get("/api/properties/?maxprice=95");
+        expect(testMaxPrice.properties.length).toBe(3);
+      });
 
-    test("returned property objects can be sorted ascending and descending when passed optional query", async () => {
-      const { body: popularityAscending } = await request(app).get(
-        "/api/properties?sort=popularity&order=ascending"
-      );
-      const { body: popularityDescending } = await request(app).get(
-        "/api/properties?sort=popularity&order=descending"
-      );
-      const { body: costAscending } = await request(app).get(
-        "/api/properties?sort=cost_per_night&order=ascending"
-      );
-      const { body: costDescending } = await request(app).get(
-        "/api/properties?sort=cost_per_night&order=descending"
-      );
+      test("only returns properties that cost more than or equal to the maxPrice if passed as optional query", async () => {
+        const { body: testMinPrice } = await request(app).get("/api/properties/?minprice=200");
+        expect(testMinPrice.properties.length).toBe(2);
+      });
 
-      expect(popularityAscending.properties[0].property_name).toBe("Elegant City Apartment");
-      expect(popularityDescending.properties[0].property_name).toBe("Cosy Family House");
-      expect(costAscending.properties[0].property_name).toBe("Charming Studio Retreat");
-      expect(costDescending.properties[0].property_name).toBe("Luxury Penthouse with View");
+      test("returns objects within price range when passed min and max price as optional queries", async () => {
+        const { body: testPriceRange } = await request(app).get(
+          "/api/properties/?minprice=100&maxprice=200"
+        );
+        expect(testPriceRange.properties.length).toBe(7);
+      });
+
+      test("price queries work when passed alongside property_type queries", async () => {
+        const { body: testPriceRange } = await request(app).get(
+          "/api/properties/?minprice=100&maxprice=200&property_type=House"
+        );
+        expect(testPriceRange.properties.length).toBe(3);
+      });
+
+      test("returns status 400 when passed an invalid min or max price", async () => {
+        const { body: testInvalidMinPrice } = await request(app)
+          .get("/api/properties/?minprice=invalid")
+          .expect(400);
+        const { body: testInvalidMaxPrice } = await request(app)
+          .get("/api/properties/?maxprice=invalid")
+          .expect(400);
+        expect(testInvalidMinPrice.msg).toBe("Bad Request");
+        expect(testInvalidMaxPrice.msg).toBe("Bad Request");
+      });
     });
   });
 
