@@ -79,6 +79,12 @@ describe("app", () => {
         .expect(404);
       expect(body.msg).toBe("Property type does not exist");
     });
+
+    test("returned property objects are sorted by cost_per_night when passed as optional query", async () => {
+      const { body } = await request(app).get("/api/properties");
+
+      expect(body.properties).toBeSortedBy("price_per_night");
+    });
   });
 
   describe("GET /api/properties/:id", () => {
@@ -218,12 +224,15 @@ describe("app", () => {
       expect(testReview.review_id).toBe(4);
       expect(testReview.comment).toBe("Comment about Elegant City Apartment");
       expect(testReview.rating).toBe(2);
-      // expect(testReview.created_at).toBe("2024-08-03T16:20:00Z");
+      expect(testReview.created_at).toBe("2024-08-03T16:20:00.000Z");
       expect(testReview.guest).toBe("Frank White");
       expect(testReview.guest_avatar).toBe("https://example.com/images/frank.jpg");
     });
 
-    test.todo("returned reviews are ordered from most recent to oldest");
+    test("returned reviews are ordered from most recent to oldest", async () => {
+      const { body } = await request(app).get("/api/properties/1/reviews");
+      expect(body.reviews).toBeSortedBy("created_at", { descending: true });
+    });
 
     test("average_rating returns the average of all review ratings of a property", async () => {
       const { body } = await request(app).get("/api/properties/5/reviews");

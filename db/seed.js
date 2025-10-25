@@ -49,7 +49,7 @@ async function seed(property_types, users, properties, reviews, images, favourit
         guest_id INT NOT NULL REFERENCES users(user_id),
         rating INT NOT NULL,
         comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         );`);
 
   // create images table

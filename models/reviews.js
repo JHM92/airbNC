@@ -8,12 +8,13 @@ exports.fetchReviewsByPropertyId = async (property_id) => {
         SELECT reviews.review_id,
         reviews.comment,
         reviews.rating,
-        CAST(reviews.created_at as date),
+        reviews.created_at,
         users.first_name || ' ' || users.surname AS guest,
         users.avatar AS guest_avatar
         FROM reviews
         JOIN users ON reviews.guest_id = users.user_id
-        WHERE reviews.property_id = $1;`,
+        WHERE reviews.property_id = $1
+        ORDER BY created_at DESC;`,
     [property_id]
   );
 
