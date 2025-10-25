@@ -1,12 +1,23 @@
 const { fetchProperties, fetchPropertyById } = require("../models/properties");
 
 exports.getProperties = async (req, res, next) => {
-  const args = [];
+  const propertyTypes = [];
   if (Object.hasOwn(req.query, "property_type")) {
-    args.push(req.query.property_type);
+    propertyTypes.push(req.query.property_type);
   }
 
-  const properties = await fetchProperties(args);
+  let sortBy = "";
+  let orderBy = "";
+
+  if (Object.hasOwn(req.query, "sort")) {
+    sortBy = req.query.sort;
+  }
+
+  if (Object.hasOwn(req.query, "order")) {
+    orderBy = req.query.order;
+  }
+
+  const properties = await fetchProperties(propertyTypes, sortBy, orderBy);
   res.status(200).send({ properties: properties });
 };
 

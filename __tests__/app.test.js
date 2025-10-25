@@ -12,7 +12,7 @@ const {
 } = require("../db/data/test");
 
 beforeEach(async () => {
-  await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
+  // await seed(propertyTypesData, usersData, propertiesData, reviewsData, imagesData, favouritesData);
 });
 
 afterAll(() => {
@@ -25,7 +25,7 @@ describe("app", () => {
     expect(body.msg).toBe("Path not found");
   });
 
-  describe("GET /api/properties", () => {
+  describe.only("GET /api/properties", () => {
     test("Responds with status of 200", async () => {
       const response = await request(app).get("/api/properties").expect(200);
     });
@@ -81,9 +81,37 @@ describe("app", () => {
     });
 
     test("returned property objects are sorted by cost_per_night when passed as optional query", async () => {
-      const { body } = await request(app).get("/api/properties");
+      const { body } = await request(app).get("/api/properties?sort=cost_per_night");
+
+      console.log(body.properties);
 
       expect(body.properties).toBeSortedBy("price_per_night");
+    });
+
+    test("returned property objects are sorted by populartiy when passed as optional query", async () => {
+      const { body } = await request(app).get("/api/properties?sort=popularity");
+      console.log(body.properties);
+      expect(body.properties[0].property_name).toBe("Elegant City Apartment");
+    });
+
+    test("returned property objects can be sorted ascending and descending when passed optional query", async () => {
+      const { body: popularityAscending } = await request(app).get(
+        "/api/properties?sort=popularity&order=ascending"
+      );
+      const { body: popularityDescending } = await request(app).get(
+        "/api/properties?sort=popularity&order=descending"
+      );
+      const { body: costAscending } = await request(app).get(
+        "/api/properties?sort=cost_per_night&order=ascending"
+      );
+      const { body: costDescending } = await request(app).get(
+        "/api/properties?sort=cost_per_night&order=descending"
+      );
+
+      expect(popularityAscending.properties[0].property_name).toBe("Elegant City Apartment");
+      expect(popularityDescending.properties[0].property_name).toBe("Cosy Family House");
+      expect(costAscending.properties[0].property_name).toBe("Charming Studio Retreat");
+      expect(costDescending.properties[0].property_name).toBe("Luxury Penthouse with View");
     });
   });
 

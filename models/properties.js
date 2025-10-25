@@ -3,8 +3,8 @@ const { fetchUserById } = require("./users");
 const { getPropertyTypes } = require("../db/queries/queries");
 const { validatePropertyTypes } = require("../db/utils");
 
-exports.fetchProperties = async (args) => {
-  const propertyTypesToValidate = args.flat();
+exports.fetchProperties = async (propertyTypes, sortBy, orderBy) => {
+  const propertyTypesToValidate = propertyTypes.flat();
 
   const baseQuery = `SELECT properties.property_id, 
     properties.name AS property_name,
@@ -16,11 +16,13 @@ exports.fetchProperties = async (args) => {
     LEFT JOIN favourites ON properties.property_id = favourites.property_id`;
 
   const groupBy = ` GROUP BY properties.property_id, property_name, properties.location, properties.price_per_night, host
-    ORDER BY COUNT(properties.property_id) DESC`;
+    `;
 
-  let optionalQuery = "";
+  let propertyTypeQuery = "";
+  let sortQueryBy = "ORDER BY COUNT(favourites.property_id) DESC";
+  let order = "";
 
-  if (args.length === 1) {
+  if (propertyTypes.length === 1) {
     const validPropertyTypes = await getPropertyTypes();
     const propertyTypesAreValid = validatePropertyTypes(
       propertyTypesToValidate,
@@ -28,10 +30,10 @@ exports.fetchProperties = async (args) => {
     );
     if (propertyTypesAreValid) {
       for (const propertyType of propertyTypesToValidate) {
-        if (optionalQuery === "") {
-          optionalQuery += ` WHERE properties.property_type = '${propertyType}' `;
+        if (propertyTypeQuery === "") {
+          propertyTypeQuery += ` WHERE properties.property_type = '${propertyType}' `;
         } else {
-          optionalQuery += `OR properties.property_type = '${propertyType}' `;
+          propertyTypeQuery += `OR properties.property_type = '${propertyType}' `;
         }
       }
     } else {
@@ -39,7 +41,22 @@ exports.fetchProperties = async (args) => {
     }
   }
 
-  const finalQuery = baseQuery + optionalQuery + groupBy + ";";
+  if (orderBy === "ascending") {
+    order = "ASC";
+  } else if (orderBy === "descending") {
+    order = "DESC";
+  }
+
+  if (sortBy === "cost_per_night") {
+    sortQueryBy = `ORDER BY properties.price_per_night ${order}`;
+    console.log(sortQueryBy);
+  } else if (sortBy === "popularity") {
+    sortQueryBy = `ORDER BY COUNT(favourites.property_id) ${order}`;
+    console.log(sortQueryBy);
+  }
+
+  const finalQuery = baseQuery + propertyTypeQuery + groupBy + sortQueryBy + ";";
+  console.log(finalQuery);
 
   const { rows: properties } = await db.query(finalQuery);
 
@@ -68,6 +85,10 @@ exports.fetchPropertyById = async (args) => {
     [property_id]
   );
 
+  if (property.length === 0) {
+    return Promise.reject({ status: 404, msg: "Property not found" });
+  }
+
   if (args.length === 2) {
     const user_id = args[1];
     const {
@@ -95,9 +116,5 @@ exports.fetchPropertyById = async (args) => {
     }
   }
 
-  if (property.length === 0) {
-    return Promise.reject({ status: 404, msg: "Property not found" });
-  } else {
-    return property[0];
-  }
+  return property[0];
 };
