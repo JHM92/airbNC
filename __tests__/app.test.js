@@ -446,6 +446,78 @@ describe("app", () => {
     });
   });
 
+  describe("POST /api/properties/:id/favourite", () => {
+    test("responds with status of 201", async () => {
+      const testFavourite = { guest_id: 3 };
+      const response = await request(app)
+        .post("/api/properties/1/favourite")
+        .send(testFavourite)
+        .expect(201);
+    });
+
+    test("responds with success message and new favourite_id", async () => {
+      const testFavourite = { guest_id: 3 };
+      const { body } = await request(app).post("/api/properties/1/favourite").send(testFavourite);
+      expect(body.msg).toBe("Property favourited successfully.");
+      expect(body.favourite_id).toBe(17);
+    });
+
+    test("responds with status 403 if guest_id has already favourited the passed property_id", async () => {
+      const testFavourite = { guest_id: 6 };
+      const { body } = await request(app)
+        .post("/api/properties/1/favourite")
+        .send(testFavourite)
+        .expect(403);
+      expect(body.msg).toBe("Already favourited.");
+    });
+
+    test("Responds with status 400 and error message when guest_id is not provided", async () => {
+      const { body } = await request(app).post("/api/properties/1/favourite").send().expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message when guest_id is invalid type", async () => {
+      const testFavourite = { guest_id: "invalid-type" };
+      const { body } = await request(app)
+        .post("/api/properties/1/favourite")
+        .send(testFavourite)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 404 and error message when guest_id is valid but non-existent", async () => {
+      const testFavourite = { guest_id: 10000000 };
+      const { body } = await request(app)
+        .post("/api/properties/1/favourite")
+        .send(testFavourite)
+        .expect(404);
+
+      expect(body.msg).toBe("Guest not found");
+    });
+
+    test("Responds with status 400 and error message if property_id is invalid type", async () => {
+      const testFavourite = { guest_id: 1 };
+      const { body } = await request(app)
+        .post("/api/properties/invalid-id/favourite")
+        .send(testFavourite)
+        .expect(400);
+
+      expect(body.msg).toBe("Bad Request");
+    });
+
+    test("Responds with status 400 and error message if property_id is valid but non-existent", async () => {
+      const testFavourite = { guest_id: 1 };
+      const { body } = await request(app)
+        .post("/api/properties/1000000/favourite")
+        .send(testFavourite)
+        .expect(404);
+
+      expect(body.msg).toBe("Property not found");
+    });
+  });
+
   describe("DELETE /api/reviews/:id", () => {
     test("Responds with status of 204", async () => {
       const response = await request(app).delete("/api/reviews/4").expect(204);

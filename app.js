@@ -13,6 +13,7 @@ const {
   postPropertyReview,
   deleteReviewById,
 } = require("./controllers/reviews");
+const { postFavourite } = require("./controllers/favourites");
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.get("/api/users/:id", getUserById);
 app.get("/api/properties/:id/reviews", getReviewsByPropertyId);
 
 app.post("/api/properties/:id/reviews", postPropertyReview);
+
+app.post("/api/properties/:id/favourite", postFavourite);
 
 app.delete("/api/reviews/:id", deleteReviewById);
 
