@@ -228,6 +228,19 @@ describe("app", () => {
       const { body } = await request(app).get("/api/properties/1?user_id=10000000").expect(404);
       expect(body.msg).toBe("User not found");
     });
+
+    test("returned property object contains images property", async () => {
+      const { body } = await request(app).get("/api/properties/1");
+      const testProperty = body.property;
+      expect(testProperty).toHaveProperty("images");
+    });
+
+    test("images property contains an array with all images associated with passed property_id", async () => {
+      const { body: testPropertyId1 } = await request(app).get("/api/properties/1");
+      const { body: testPropertyId2 } = await request(app).get("/api/properties/2");
+      expect(testPropertyId1.property.images.length).toBe(3);
+      expect(testPropertyId2.property.images.length).toBe(1);
+    });
   });
 
   describe("GET /api/users/:id", () => {

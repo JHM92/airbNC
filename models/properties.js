@@ -96,7 +96,8 @@ exports.fetchPropertyById = async (args) => {
     properties.description,
     users.first_name || ' ' || users.surname AS host,
     users.avatar AS host_avatar,
-    COUNT(properties.property_id) AS favourite_count 
+    COUNT(properties.property_id) AS favourite_count,
+    (SELECT ARRAY_AGG (image_url) images FROM images WHERE images.property_id = properties.property_id) 
     FROM properties
     JOIN users ON properties.host_id = users.user_id
     LEFT JOIN favourites ON properties.property_id = favourites.property_id
