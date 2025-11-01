@@ -152,6 +152,18 @@ describe("app", () => {
         expect(testInvalidMaxPrice.msg).toBe("Bad Request");
       });
     });
+
+    test("returned property objects have image_url property", async () => {
+      const { body } = await request(app).get("/api/properties");
+      const testProperty = body.properties[0];
+      expect(testProperty).toHaveProperty("image_url");
+    });
+
+    test("returned properties only contain one image_url", async () => {
+      const { body } = await request(app).get("/api/properties");
+      const testProperty = body.properties[9];
+      expect(testProperty.image_url).toBe("https://example.com/images/modern_apartment_1.jpg");
+    });
   });
 
   describe("GET /api/properties/:id", () => {

@@ -10,12 +10,13 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPr
     properties.name AS property_name,
     properties.location,
     properties.price_per_night,
-    users.first_name || ' ' || users.surname AS host    
+    users.first_name || ' ' || users.surname AS host,
+    (SELECT image_url FROM images WHERE images.property_id = properties.property_id LIMIT 1)
     FROM properties
     JOIN users ON properties.host_id = users.user_id
     LEFT JOIN favourites ON properties.property_id = favourites.property_id`;
 
-  const groupBy = ` GROUP BY properties.property_id, property_name, properties.location, properties.price_per_night, host
+  const groupBy = ` GROUP BY properties.property_id, property_name, properties.location, properties.price_per_night, host, image_url
     `;
 
   let optionalQueries = "";
