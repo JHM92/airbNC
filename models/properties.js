@@ -5,7 +5,6 @@ const { validatePropertyTypes } = require("../db/utils");
 
 exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPrice) => {
   const propertyTypesToValidate = propertyTypes.flat();
-  console.log({ minPrice }, { maxPrice });
 
   const baseQuery = `SELECT properties.property_id, 
     properties.name AS property_name,
@@ -74,14 +73,11 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPr
 
   if (sortBy === "cost_per_night") {
     sortQueryBy = `ORDER BY properties.price_per_night ${order}`;
-    console.log(sortQueryBy);
   } else if (sortBy === "popularity") {
     sortQueryBy = `ORDER BY COUNT(favourites.property_id) ${order}`;
-    console.log(sortQueryBy);
   }
 
   const finalQuery = baseQuery + optionalQueries + groupBy + sortQueryBy + ";";
-  console.log(finalQuery);
 
   const { rows: properties } = await db.query(finalQuery);
 

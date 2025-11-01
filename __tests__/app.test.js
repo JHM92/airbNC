@@ -83,15 +83,11 @@ describe("app", () => {
     describe("optional query: sort/order by", () => {
       test("returned property objects are sorted by cost_per_night when passed as optional query", async () => {
         const { body } = await request(app).get("/api/properties?sort=cost_per_night");
-
-        console.log(body.properties);
-
-        expect(body.properties).toBeSortedBy("price_per_night");
+        expect(body.properties).toBeSortedBy("price_per_night", { coerce: true });
       });
 
       test("returned property objects are sorted by popularity when passed as optional query", async () => {
         const { body } = await request(app).get("/api/properties?sort=popularity");
-        console.log(body.properties);
         expect(body.properties[0].property_name).toBe("Elegant City Apartment");
       });
 
@@ -109,10 +105,14 @@ describe("app", () => {
           "/api/properties?sort=cost_per_night&order=descending"
         );
 
+        expect(costAscending.properties).toBeSortedBy("price_per_night", { coerce: true });
+        expect(costDescending.properties).toBeSortedBy("price_per_night", {
+          descending: true,
+          coerce: true,
+        });
+
         expect(popularityAscending.properties[0].property_name).toBe("Elegant City Apartment");
         expect(popularityDescending.properties[0].property_name).toBe("Cosy Family House");
-        expect(costAscending.properties[0].property_name).toBe("Charming Studio Retreat");
-        expect(costDescending.properties[0].property_name).toBe("Luxury Penthouse with View");
       });
     });
 
