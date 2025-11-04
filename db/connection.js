@@ -1,6 +1,9 @@
-const {Pool} = require("pg");
+const { Pool } = require("pg");
 
-require("dotenv").config();
+const ENV = process.env.NODE_ENV || "development";
+console.log(ENV);
+
+require("dotenv").config(`${__dirname}/../.env.${ENV}`);
 
 const pool = new Pool();
 
