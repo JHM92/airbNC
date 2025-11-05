@@ -5,6 +5,7 @@ const {
   handleServerErrors,
   handleBadRequests,
   handleCustomErrors,
+  handleInvalidMethods,
 } = require("./errors");
 
 const { getUserById } = require("./controllers/users");
@@ -19,19 +20,21 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/api/properties", getProperties);
+app.route("/api/properties").get(getProperties).all(handleInvalidMethods);
 
-app.get("/api/properties/:id", getPropertyById);
+app.route("/api/properties/:id").get(getPropertyById).all(handleInvalidMethods);
 
-app.get("/api/users/:id", getUserById);
+app.route("/api/users/:id").get(getUserById).all(handleInvalidMethods);
 
-app.get("/api/properties/:id/reviews", getReviewsByPropertyId);
+app
+  .route("/api/properties/:id/reviews")
+  .get(getReviewsByPropertyId)
+  .post(postPropertyReview)
+  .all(handleInvalidMethods);
 
-app.post("/api/properties/:id/reviews", postPropertyReview);
+app.route("/api/properties/:id/favourite").post(postFavourite).all(handleInvalidMethods);
 
-app.post("/api/properties/:id/favourite", postFavourite);
-
-app.delete("/api/reviews/:id", deleteReviewById);
+app.route("/api/reviews/:id").delete(deleteReviewById).all(handleInvalidMethods);
 
 app.all("/*path", handlePathNotFound);
 

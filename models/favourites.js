@@ -13,7 +13,7 @@ exports.insertFavouriteProperty = async (guestId, propertyId) => {
   );
 
   if (checkIfAlreadyFavourited.length > 0) {
-    return Promise.reject({ status: 403, msg: "Already favourited." });
+    return Promise.reject({ status: 409, msg: "Already favourited." });
   }
 
   const { rows: checkGuestIdExists } = await db.query(

@@ -11,6 +11,10 @@ exports.handleBadRequests = (err, req, res, next) => {
   }
 };
 
+exports.handleInvalidMethods = (req, res, next) => {
+  res.status(405).send({ msg: "Invalid method" });
+};
+
 exports.handleCustomErrors = (err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
