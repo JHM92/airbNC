@@ -7,6 +7,7 @@
     "create-dbs": "psql -f db/airbnc.sql",
     "seed-test": "NODE_ENV=test node db/seed-run.js",
     "seed-dev": "node db/seed-run.js",
+    "seed-prod": "NODE_ENV=production node db/seed-run.js",
     "test-utils": "jest utils",
     "test": "jest jest app",
     "dev": "nodemon listen.js"

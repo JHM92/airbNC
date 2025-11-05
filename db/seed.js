@@ -24,10 +24,10 @@ async function seed(property_types, users, properties, reviews, images, favourit
         user_id SERIAL PRIMARY KEY,
         first_name VARCHAR(40) NOT NULL,
         surname VARCHAR(40) NOT NULL,
-        email VARCHAR(40) NOT NULL,
+        email VARCHAR(100) NOT NULL,
         phone_number VARCHAR(15),
         is_host BOOLEAN NOT NULL,
-        avatar VARCHAR(40),
+        avatar VARCHAR(300),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`);
 
@@ -35,7 +35,7 @@ async function seed(property_types, users, properties, reviews, images, favourit
   await db.query(`CREATE TABLE properties(
         property_id SERIAL PRIMARY KEY,
         host_id INT NOT NULL REFERENCES users(user_id),
-        name VARCHAR(40) NOT NULL,
+        name VARCHAR(100) NOT NULL,
         location VARCHAR(40) NOT NULL,
         property_type VARCHAR(40) NOT NULL REFERENCES property_types(property_type),
         price_per_night DECIMAL NOT NULL,
@@ -56,8 +56,8 @@ async function seed(property_types, users, properties, reviews, images, favourit
   await db.query(`CREATE TABLE images(
         image_id SERIAL PRIMARY KEY,
         property_id INT NOT NULL REFERENCES properties(property_id),
-        image_url varchar(100) NOT NULL,
-        alt_text varchar(100) NOT NULL
+        image_url varchar(300) NOT NULL,
+        alt_text varchar(300) NOT NULL
         );`);
 
   // create favourites table
