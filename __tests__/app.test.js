@@ -154,6 +154,29 @@ describe("app", () => {
         });
       });
 
+      describe("optional query: search by host id", () => {
+        test("only returns properties belong to host_id if passed as optional query", async () => {
+          const { body: testHostId1 } = await request(app).get("/api/properties/?host=1");
+          const { body: testHostId3 } = await request(app).get("/api/properties/?host=3");
+          expect(testHostId1.properties.length).toBe(5);
+          expect(testHostId3.properties.length).toBe(3);
+        });
+
+        test("returns status 400 when passed an invalid host_id", async () => {
+          const { body: testInvalidHostId } = await request(app)
+            .get("/api/properties/?host=invalid-id")
+            .expect(400);
+          expect(testInvalidHostId.msg).toBe("Bad Request");
+        });
+
+        test("returns status 404 when passed a valid but non-existent host_id", async () => {
+          const { body: testInvalidHostId } = await request(app)
+            .get("/api/properties/?host=1000000")
+            .expect(404);
+          expect(testInvalidHostId.msg).toBe("Host not found");
+        });
+      });
+
       test("returned property objects have image_url property", async () => {
         const { body } = await request(app).get("/api/properties");
         const testProperty = body.properties[0];

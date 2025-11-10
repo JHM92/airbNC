@@ -10,6 +10,7 @@ exports.getProperties = async (req, res, next) => {
   let orderBy = "";
   let minPrice = null;
   let maxPrice = null;
+  let hostId = null;
 
   if (Object.hasOwn(req.query, "sort")) {
     sortBy = req.query.sort;
@@ -27,7 +28,18 @@ exports.getProperties = async (req, res, next) => {
     maxPrice = req.query.maxprice;
   }
 
-  const properties = await fetchProperties(propertyTypes, sortBy, orderBy, minPrice, maxPrice);
+  if (Object.hasOwn(req.query, "host")) {
+    hostId = req.query.host;
+  }
+
+  const properties = await fetchProperties(
+    propertyTypes,
+    sortBy,
+    orderBy,
+    minPrice,
+    maxPrice,
+    hostId
+  );
   res.status(200).send({ properties: properties });
 };
 

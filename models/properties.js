@@ -3,7 +3,7 @@ const { fetchUserById } = require("./users");
 const { getPropertyTypes } = require("../db/queries/queries");
 const { validatePropertyTypes } = require("../db/utils");
 
-exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPrice) => {
+exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPrice, hostId) => {
   const propertyTypesToValidate = propertyTypes.flat();
 
   const baseQuery = `SELECT properties.property_id, 
@@ -76,6 +76,23 @@ exports.fetchProperties = async (propertyTypes, sortBy, orderBy, minPrice, maxPr
     sortQueryBy = `ORDER BY properties.price_per_night ${order}`;
   } else if (sortBy === "popularity") {
     sortQueryBy = `ORDER BY COUNT(favourites.property_id) ${order}`;
+  }
+
+  // Optional query host id
+  if (hostId) {
+    const { rows: checkhostId } = await db.query(`SELECT * FROM users WHERE user_id = $1`, [
+      hostId,
+    ]);
+    if (checkhostId.length === 0) {
+      return Promise.reject({ status: 404, msg: "Host not found" });
+    }
+    if (optionalQueries !== "") {
+      optionalQueries += " AND";
+    } else {
+      optionalQueries += " WHERE";
+    }
+
+    optionalQueries += ` properties.host_id = ${hostId}`;
   }
 
   const finalQuery = baseQuery + optionalQueries + groupBy + sortQueryBy + ";";
