@@ -51,3 +51,35 @@ exports.insertFavouriteProperty = async (guestId, propertyId) => {
 
   return insertedFavourite;
 };
+
+exports.deleteFavouriteProperty = async (guestId, propertyId) => {
+  const valuesToDelete = [guestId, propertyId];
+
+  const { rows: checkGuestIdExists } = await db.query(
+    `
+    SELECT * FROM users
+    WHERE users.user_id = $1;`,
+    [guestId]
+  );
+
+  if (checkGuestIdExists.length === 0) {
+    return Promise.reject({ status: 404, msg: "User not found" });
+  }
+
+  const { rows: checkPropertyIdExists } = await db.query(
+    `
+    SELECT * FROM properties
+    WHERE properties.property_id = $1;`,
+    [propertyId]
+  );
+
+  if (checkPropertyIdExists.length === 0) {
+    return Promise.reject({ status: 404, msg: "Property not found" });
+  }
+
+  await db.query(
+    `DELETE FROM favourites
+    WHERE favourites.guest_id = $1 AND favourites.property_id = $2;`,
+    valuesToDelete
+  );
+};

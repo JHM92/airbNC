@@ -14,7 +14,7 @@ const {
   postPropertyReview,
   deleteReviewById,
 } = require("./controllers/reviews");
-const { postFavourite } = require("./controllers/favourites");
+const { postFavourite, deleteFavourite } = require("./controllers/favourites");
 
 const app = express();
 
@@ -35,6 +35,11 @@ app
 app.route("/api/properties/:id/favourite").post(postFavourite).all(handleInvalidMethods);
 
 app.route("/api/reviews/:id").delete(deleteReviewById).all(handleInvalidMethods);
+
+app
+  .route("/api/properties/:propertyId/users/:userId/favourite")
+  .delete(deleteFavourite)
+  .all(handleInvalidMethods);
 
 app.all("/*path", handlePathNotFound);
 

@@ -661,4 +661,75 @@ describe("app", () => {
       });
     });
   });
+
+  describe("/api/properties/:id/users/:id/favourite", () => {
+    describe("DELETE method", () => {
+      test("Responds with status of 204", async () => {
+        const response = await request(app)
+          .delete("/api/properties/1/users/6/favourite")
+          .expect(204);
+      });
+
+      test("Removes row of passed user_id and property_id from favourites table", async () => {
+        const { body: beforeRemoval } = await request(app).get("/api/properties/1?user_id=6");
+        let isFavourited = beforeRemoval.property.favourited;
+        expect(isFavourited).toBe(true);
+
+        await request(app).delete("/api/properties/1/users/6/favourite");
+
+        const { body: afterRemoval } = await request(app).get("/api/properties/1?user_id=6");
+        isFavourited = afterRemoval.property.favourited;
+
+        expect(isFavourited).toBe(false);
+      });
+
+      test("responds with status of 204 when passed valid inputs but they're not in the favourites table", async () => {
+        await request(app).delete("/api/properties/1/users/6/favourite");
+        await request(app).delete("/api/properties/1/users/6/favourite").expect(204);
+      });
+
+      test("responds with status 400 when passed an invalid user_id", async () => {
+        const { body } = await request(app)
+          .delete("/api/properties/6/users/invalid-id/favourite")
+          .expect(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+
+      test("responds with status 404 when passed a valid but non-existent user_id", async () => {
+        const { body } = await request(app)
+          .delete("/api/properties/6/users/100000/favourite")
+          .expect(404);
+        expect(body.msg).toBe("User not found");
+      });
+
+      test("responds with status 400 when passed an invalid property_id", async () => {
+        const { body } = await request(app)
+          .delete("/api/properties/invalid-id/users/1/favourite")
+          .expect(400);
+        expect(body.msg).toBe("Bad Request");
+      });
+
+      test("responds with status 404 when passed a valid but non-existent property_id", async () => {
+        const { body } = await request(app)
+          .delete("/api/properties/1000000/users/1/favourite")
+          .expect(404);
+        expect(body.msg).toBe("Property not found");
+      });
+    });
+
+    describe("INVALID METHODS", () => {
+      const methods = ["get", "post", "patch", "put"];
+
+      test("responds with status 405 and message when invalid method is requested", async () => {
+        const invalidRequests = methods.map(async (method) => {
+          const { body } = await request(app)
+            [method]("/api/properties/1/users/6/favourite")
+            .expect(405);
+          expect(body.msg).toBe("Invalid method");
+        });
+
+        await Promise.all(invalidRequests);
+      });
+    });
+  });
 });

@@ -1,4 +1,4 @@
-const { insertFavouriteProperty } = require("../models/favourites");
+const { insertFavouriteProperty, deleteFavouriteProperty } = require("../models/favourites");
 
 exports.postFavourite = async (req, res, next) => {
   if (req.body !== undefined) {
@@ -12,4 +12,11 @@ exports.postFavourite = async (req, res, next) => {
   } else {
     res.status(400).send({ msg: "Bad Request" });
   }
+};
+
+exports.deleteFavourite = async (req, res, next) => {
+  const guestId = req.params.userId;
+  const propertyId = req.params.propertyId;
+  await deleteFavouriteProperty(guestId, propertyId);
+  res.status(204).send();
 };
