@@ -8,7 +8,7 @@ const {
   handleInvalidMethods,
 } = require("./errors");
 
-const { getUserById } = require("./controllers/users");
+const { getUserById, patchUserById } = require("./controllers/users");
 const {
   getReviewsByPropertyId,
   postPropertyReview,
@@ -24,7 +24,7 @@ app.route("/api/properties").get(getProperties).all(handleInvalidMethods);
 
 app.route("/api/properties/:id").get(getPropertyById).all(handleInvalidMethods);
 
-app.route("/api/users/:id").get(getUserById).all(handleInvalidMethods);
+app.route("/api/users/:id").get(getUserById).patch(patchUserById).all(handleInvalidMethods);
 
 app
   .route("/api/properties/:id/reviews")

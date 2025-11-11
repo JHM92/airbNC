@@ -342,8 +342,141 @@ describe("app", () => {
       });
     });
 
+    describe("PATCH method", () => {
+      test("Responds with status 200", async () => {
+        const payload = {
+          first_name: "testFirstName",
+          surname: "testSurname",
+          email: "testEmail",
+          phone: "testPhone",
+          avatar: "testAvatar",
+        };
+
+        const response = await request(app).patch("/api/users/1").send(payload).expect(200);
+      });
+
+      test("Updates all columns of the passed userId when the payload contains all properties", async () => {
+        const payload = {
+          first_name: "testFirstName",
+          surname: "testSurname",
+          email: "testEmail",
+          phone: "testPhone",
+          avatar: "testAvatar",
+        };
+
+        await request(app).patch("/api/users/1").send(payload);
+
+        const {
+          body: { user: updatedUser },
+        } = await request(app).get("/api/users/1");
+
+        expect(updatedUser.first_name).toBe("testFirstName");
+        expect(updatedUser.surname).toBe("testSurname");
+        expect(updatedUser.email).toBe("testEmail");
+        expect(updatedUser.phone_number).toBe("testPhone");
+        expect(updatedUser.avatar).toBe("testAvatar");
+      });
+
+      test("Works when the payload contains a single property to update", async () => {
+        const firstNamePayload = { first_name: "testFirstName" };
+        const surnamePayload = { surname: "testSurname" };
+        const phonePayload = { phone: "testPhone" };
+        const emailPayload = { email: "testEmail" };
+        const avatarPayload = { avatar: "testAvatar" };
+
+        await request(app).patch("/api/users/1").send(firstNamePayload);
+        const {
+          body: { user: updatedUserFirstname },
+        } = await request(app).get("/api/users/1");
+
+        expect(updatedUserFirstname.first_name).toBe("testFirstName");
+
+        await request(app).patch("/api/users/2").send(surnamePayload);
+        const {
+          body: { user: updatedUserSurname },
+        } = await request(app).get("/api/users/2");
+
+        expect(updatedUserSurname.surname).toBe("testSurname");
+
+        await request(app).patch("/api/users/3").send(phonePayload);
+        const {
+          body: { user: updatedUserPhone },
+        } = await request(app).get("/api/users/3");
+
+        expect(updatedUserPhone.phone_number).toBe("testPhone");
+
+        await request(app).patch("/api/users/4").send(emailPayload);
+        const {
+          body: { user: updatedUserEmail },
+        } = await request(app).get("/api/users/4");
+
+        expect(updatedUserEmail.email).toBe("testEmail");
+
+        await request(app).patch("/api/users/5").send(avatarPayload);
+        const {
+          body: { user: updatedUserAvatar },
+        } = await request(app).get("/api/users/5");
+
+        expect(updatedUserAvatar.avatar).toBe("testAvatar");
+      });
+
+      test("Works when payload contains multiple but not all properties to update", async () => {
+        const multiplePropertiesPayload = { first_name: "testFirstName", surname: "testSurname" };
+
+        await request(app).patch("/api/users/1").send(multiplePropertiesPayload);
+
+        const {
+          body: { user: updatedUser },
+        } = await request(app).get("/api/users/1");
+
+        expect(updatedUser.first_name).toBe("testFirstName");
+        expect(updatedUser.surname).toBe("testSurname");
+        expect(updatedUser.email).toBe("alice@example.com");
+        expect(updatedUser.phone_number).toBe("+44 7000 111111");
+        expect(updatedUser.avatar).toBe("https://example.com/images/alice.jpg");
+      });
+
+      test("responds with status 400 when any payload properties are not a string", async () => {
+        const firstNamePayload = { first_name: true };
+        const surnamePayload = { surname: [] };
+        const phonePayload = { phone: {} };
+        const emailPayload = { email: 0 };
+        const avatarPayload = { avatar: null };
+
+        const { body: invalidFirstName } = await request(app)
+          .patch("/api/users/1")
+          .send(firstNamePayload)
+          .expect(400);
+        expect(invalidFirstName.msg).toBe("Bad Request");
+
+        const { body: invalidSurname } = await request(app)
+          .patch("/api/users/1")
+          .send(surnamePayload)
+          .expect(400);
+        expect(invalidSurname.msg).toBe("Bad Request");
+
+        const { body: invalidPhone } = await request(app)
+          .patch("/api/users/1")
+          .send(phonePayload)
+          .expect(400);
+        expect(invalidPhone.msg).toBe("Bad Request");
+
+        const { body: invalidEmail } = await request(app)
+          .patch("/api/users/1")
+          .send(emailPayload)
+          .expect(400);
+        expect(invalidEmail.msg).toBe("Bad Request");
+
+        const { body: invalidAvatar } = await request(app)
+          .patch("/api/users/1")
+          .send(avatarPayload)
+          .expect(400);
+        expect(invalidAvatar.msg).toBe("Bad Request");
+      });
+    });
+
     describe("INVALID METHODS", () => {
-      const methods = ["post", "delete", "patch", "put"];
+      const methods = ["post", "delete", "put"];
 
       test("responds with status 405 and message when invalid method is requested", async () => {
         const invalidRequests = methods.map(async (method) => {
