@@ -15,9 +15,11 @@ const {
   deleteReviewById,
 } = require("./controllers/reviews");
 const { postFavourite, deleteFavourite } = require("./controllers/favourites");
+const cors = require("cors");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.route("/api/properties").get(getProperties).all(handleInvalidMethods);
