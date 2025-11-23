@@ -32,6 +32,9 @@ exports.fetchReviewsByPropertyId = async (property_id) => {
 
   const ratings = reviews.map(({ rating }) => rating);
   const averageRating = calculateAverage(ratings);
+  if (averageRating === undefined) {
+    return [reviews, "No Ratings"];
+  }
   return [reviews, averageRating];
 };
 

@@ -533,6 +533,11 @@ describe("app", () => {
         expect(body.average_rating).toBe(4.5);
       });
 
+      test("average_rating returns 'no ratings' if there aren't any ratings", async () => {
+        const { body } = await request(app).get("/api/properties/2/reviews");
+        expect(body.average_rating).toBe("No Ratings");
+      });
+
       test("returns status 400 when passed an invalid property id", async () => {
         const { body } = await request(app).get("/api/properties/invalid-id/reviews").expect(400);
         expect(body.msg).toBe("Bad Request");
