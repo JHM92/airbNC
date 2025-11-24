@@ -112,6 +112,7 @@ exports.fetchPropertyById = async (args) => {
     properties.price_per_night,
     properties.description,
     users.first_name || ' ' || users.surname AS host,
+    properties.host_id AS host_id,
     users.avatar AS host_avatar,
     COUNT(properties.property_id) AS favourite_count,
     (SELECT ARRAY_AGG (image_url) images FROM images WHERE images.property_id = properties.property_id) 
@@ -120,7 +121,7 @@ exports.fetchPropertyById = async (args) => {
     LEFT JOIN favourites ON properties.property_id = favourites.property_id
     WHERE properties.property_id = $1
     GROUP BY properties.property_id, property_name, properties.location, 
-    properties.price_per_night, properties.description, host, host_avatar;
+    properties.price_per_night, properties.description, host, host_id, host_avatar;
     `,
     [property_id]
   );

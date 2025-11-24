@@ -216,7 +216,7 @@ describe("app", () => {
         expect(Array.isArray(body.property)).toBe(false);
       });
 
-      test("property object contains property_id, property_name, location, price_per_night, description, host, host_avatar, favourite_count", async () => {
+      test("property object contains property_id, property_name, location, price_per_night, description, host, host_id, host_avatar, favourite_count", async () => {
         const { body } = await request(app).get("/api/properties/1");
         const testProperty = body.property;
         expect(testProperty).toHaveProperty("property_id");
@@ -224,6 +224,7 @@ describe("app", () => {
         expect(testProperty).toHaveProperty("location");
         expect(testProperty).toHaveProperty("price_per_night");
         expect(testProperty).toHaveProperty("host");
+        expect(testProperty).toHaveProperty("host_id");
         expect(testProperty).toHaveProperty("host_avatar");
         expect(testProperty).toHaveProperty("favourite_count");
       });
@@ -236,6 +237,7 @@ describe("app", () => {
         expect(testProperty.location).toBe("Manchester, UK");
         expect(testProperty.price_per_night).toBe("150");
         expect(testProperty.host).toBe("Alice Johnson");
+        expect(testProperty.host_id).toBe(1);
         expect(testProperty.host_avatar).toBe("https://example.com/images/alice.jpg");
         expect(testProperty.favourite_count).toBe("4");
       });
