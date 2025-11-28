@@ -68,5 +68,26 @@
     "rating": 5,
     "comment": "This quaint cottage was absolutely lovely, offering a serene and private escape in the hills. We enjoyed the cozy fireplace, scenic surroundings, and charming decor throughout. It was exactly what we needed for a relaxing weekend.",
     "created_at": "2025-04-15T17:45:00Z"
+  },
+  {
+    "property_name": "Luxury Penthouse with View",
+    "guest_name": "Bob Smith",
+    "rating": 4,
+    "comment": "Charming and quiet property. Everything was very clean, and the host made us feel welcome. A little far from the city center, but public transport was easily accessible. Great for a peaceful retreat!",
+    "created_at": "2024-02-15T10:24:00Z"
+  },
+  {
+    "property_name": "Luxury Penthouse with View",
+    "guest_name": "Sophia Bennett",
+    "rating": 5,
+    "comment": "Perfect getaway! Beautifully decorated, peaceful, and just a short walk to the beach. Host provided great local recommendations. Everything was seamless. Can't wait to return!",
+    "created_at": "2024-02-22T10:24:00Z"
+  },
+  {
+    "property_name": "Quaint Cottage in the Hills",
+    "guest_name": "Olivia Taylor",
+    "rating": 4,
+    "comment": "Great spot, very cozy and comfortable. Only downside was the bathroom was a bit smaller than expected. Still, the host was lovely and made us feel right at home. Would stay again!",
+    "created_at": "2024-04-22T10:24:00Z"
   }
 ]
