@@ -10,7 +10,8 @@ exports.fetchReviewsByPropertyId = async (property_id) => {
         reviews.rating,
         reviews.created_at,
         users.first_name || ' ' || users.surname AS guest,
-        users.avatar AS guest_avatar
+        users.avatar AS guest_avatar,
+        reviews.guest_id
         FROM reviews
         JOIN users ON reviews.guest_id = users.user_id
         WHERE reviews.property_id = $1

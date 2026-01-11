@@ -503,7 +503,7 @@ describe("app", () => {
         expect(body).toHaveProperty("average_rating");
       });
 
-      test("Review object contains review_id, comment, rating, created_at, guest, guest_avatar", async () => {
+      test("Review object contains review_id, comment, rating, created_at, guest, guest_avatar, guest_id", async () => {
         const { body } = await request(app).get("/api/properties/1/reviews");
         const testReview = body.reviews[0];
         expect(testReview).toHaveProperty("review_id");
@@ -512,6 +512,7 @@ describe("app", () => {
         expect(testReview).toHaveProperty("created_at");
         expect(testReview).toHaveProperty("guest");
         expect(testReview).toHaveProperty("guest_avatar");
+        expect(testReview).toHaveProperty("guest_id");
       });
 
       test("returns review data for the property_id passed in the url", async () => {
@@ -523,6 +524,7 @@ describe("app", () => {
         expect(testReview.created_at).toBe("2024-08-03T16:20:00.000Z");
         expect(testReview.guest).toBe("Frank White");
         expect(testReview.guest_avatar).toBe("https://example.com/images/frank.jpg");
+        expect(testReview.guest_id).toBe(4);
       });
 
       test("returned reviews are ordered from most recent to oldest", async () => {
